@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Diagnostics;
+using System.Runtime.CompilerServices;
 
 namespace Snake
 {
@@ -7,10 +8,11 @@ namespace Snake
         public static List<string[]> Arena = new List<string[]>();
         public static List<Body> BodyList = new List<Body>();
 
-
         public static Player player;
 
         public static int Score = 0;
+        public static int NumberOfPoints;
+        public static int PlayerLenght;
 
         public static bool GameOn = false;
 
@@ -20,11 +22,9 @@ namespace Snake
         {
             if (!GameOn)
             {
-                WordGenarete(100, 25);
+                GenereteWorld(100, 25);
 
-                Console.WriteLine("ARENA 100x25");
-               
-
+                
                 Console.ReadLine();
             }
 
@@ -53,9 +53,10 @@ namespace Snake
 
             Console.Clear();
             Console.WriteLine("\n GAME OVER");
+            Console.WriteLine($"\n SCORE: {Score}");
         }
 
-        static void WordGenarete(int wordWidth,int wordHeight)
+        static void GenereteWorld(int wordWidth,int wordHeight)
         {
             Arena.Clear();
 
@@ -90,7 +91,7 @@ namespace Snake
             Arena[^1] = TopBotBorder;
             #endregion
 
-            PoitSpawner(new Random().Next(15, 25));
+            SpawnPoits(new Random().Next(15, 25));
 
             Regenerate();//First Generate
 
@@ -98,7 +99,7 @@ namespace Snake
 
         }
 
-        static void PoitSpawner(int pointNumber)
+        static void SpawnPoits(int pointNumber)
         {
             int i = 0;
 
@@ -115,13 +116,14 @@ namespace Snake
                 i++;
             }
 
+            NumberOfPoints = pointNumber;
         }
 
         static void Regenerate()
         {
             Console.Clear();
 
-            PlayerManager(12, 50);
+            ManageMovement(12, 50);
 
             if (Score > 9)
             {
@@ -149,9 +151,8 @@ namespace Snake
             } //ArenaLoad
         }
 
-        static void PlayerManager(int playerLayer, int playerPosition)
+        static void ManageMovement(int playerLayer, int playerPosition)
         {
-
             if (!GameOn)
             {
                 Player.PlayerDirection = Direction.Right;
@@ -165,34 +166,34 @@ namespace Snake
             {
                 Move();
             }
-
-
         }
 
         static void Move()
         {
-            
-
             int newLayer = player.Layer;
             int newPosition = player.Position;
-            int lastLayer;
-            int lastPosition;
+            int lastLayer = 0;
+            int lastPosition = 0;
            
             foreach (Body bodyPart in BodyList)
             {
                 lastLayer = bodyPart.Layer;
                 lastPosition = bodyPart.Position;
+
                 bodyPart.Layer = newLayer;
                 bodyPart.Position = newPosition;
 
-                var clearSpace = Arena[lastLayer];
-                clearSpace[lastPosition] = " ";
-                Arena[lastLayer] = clearSpace;
+                newLayer = lastLayer;
+                newPosition = lastPosition;
 
                 var redrawSpace = Arena[bodyPart.Layer];
                 redrawSpace[bodyPart.Position] = "O";
                 Arena[bodyPart.Layer] = redrawSpace;
             } // BodyMove and Write
+
+            var clearSpace = Arena[lastLayer];
+            clearSpace[lastPosition] = " ";
+            Arena[lastLayer] = clearSpace;
 
             player.NewDirection();
 
@@ -200,19 +201,19 @@ namespace Snake
 
             if (redrawPlayer[player.Position] != " ")
             {
-                if  (redrawPlayer[player.Position] == "P")
+                if (redrawPlayer[player.Position] == "P")
                 {
                     player.Lenght++;
                     Score++;
+                    redrawPlayer[player.Position] = "X";
+                    NumberOfPoints--;
+                    BodyList.Add(new Body(BodyList[^1].Layer, BodyList[^1].Position));
                 }
                 else { GameOn = false; }
             }
             else { redrawPlayer[player.Position] = "X"; }
 
             Arena[player.Layer] = redrawPlayer;
-
-
-
         }
 
 
@@ -234,6 +235,7 @@ namespace Snake
                 Position = position;
                 Layer = layer;
                 Lenght = 1;
+                PlayerLenght = Lenght;
 
             }
 
