@@ -29,7 +29,7 @@ namespace Snake
         {
             if (!GameOn)
             {
-                GenereteWorld(100, 25);
+                GenerateWorld(100, 25);
                 TimePerTick = TimePerTickBacic;
 
                 try
@@ -65,16 +65,16 @@ namespace Snake
                     switch (key.Key)
                     {
                         case ConsoleKey.W:
-                            Player.PlayerDirection = Direction.Up;
+                            player.PlayerDirection = Direction.Up;
                             break;
                         case ConsoleKey.S:
-                            Player.PlayerDirection = Direction.Down; 
+                            player.PlayerDirection = Direction.Down; 
                             break;
                         case ConsoleKey.A:
-                            Player.PlayerDirection = Direction.Left;
+                            player.PlayerDirection = Direction.Left;
                             break; 
                         case ConsoleKey.D:
-                            Player.PlayerDirection = Direction.Right;
+                            player.PlayerDirection = Direction.Right;
                             break;
                     }
                }
@@ -123,13 +123,13 @@ namespace Snake
             Console.WriteLine($"\n BEST SCORE: {BestScore}");
         }
 
-        static void GenereteWorld(int wordWidth,int wordHeight)
+        static void GenerateWorld(int worldWidth, int worldHeight)
         {
             Arena.Clear();
 
-            for (int i = 0; i < wordHeight;i++) //Line Create
+            for (int i = 0; i < worldHeight;i++) //Line Create
             {
-                var newLine = new string[wordWidth];
+                var newLine = new string[worldWidth];
 
                 for (int x = 1; x < newLine.Length - 1; x++)
                 {
@@ -142,7 +142,7 @@ namespace Snake
             }
 
             #region TOP / BOT Border 
-            string[] TopBotBorder = new string[wordWidth];
+            string[] TopBotBorder = new string[worldWidth];
             
             TopBotBorder[0] = "|";
             TopBotBorder[^1] = "|";
@@ -152,7 +152,7 @@ namespace Snake
                 TopBotBorder[i] = "-";
             }
 
-            TopBotBorder[wordWidth / 2] = Score.ToString();
+            TopBotBorder[worldWidth / 2] = Score.ToString();
 
             Arena[0] = TopBotBorder;
             Arena[^1] = TopBotBorder;
@@ -199,7 +199,8 @@ namespace Snake
                 TopLine[50] = score[1].ToString();
 
                 Arena[0] = TopLine;
-            } else
+            } 
+            else
             {
                var score = Arena[0];
                 score[50] = Score.ToString();
@@ -219,9 +220,10 @@ namespace Snake
         static void ManageMovement(int playerLayer, int playerPosition)
         {
             if (!GameOn)
-            {
-                Player.PlayerDirection = Direction.Right;
+            { 
                 player = new Player(playerLayer, playerPosition);
+                player.PlayerDirection = Direction.Right;
+
                 var layer = Arena[player.Layer];
                 layer[player.Position] = "X";
                 layer[player.Position - 1] = "O";
@@ -276,7 +278,8 @@ namespace Snake
                 }
                 else { GameOn = false; }
             }
-            else { redrawPlayer[player.Position] = "X"; }
+            else 
+            { redrawPlayer[player.Position] = "X"; }
 
             Arena[player.Layer] = redrawPlayer;
         }
@@ -290,7 +293,7 @@ namespace Snake
         public class Player : Snake
         {
             public int Lenght { get; set; }
-            public static Direction PlayerDirection { get; set; }
+            public Direction PlayerDirection { get; set; }
 
             public Player(int layer, int position)
             {
@@ -302,7 +305,7 @@ namespace Snake
 
             public void NewDirection()
             {
-                switch (Player.PlayerDirection)
+                switch (player.PlayerDirection)
                 {
                     case Direction.Up:
                         player.Layer--;
