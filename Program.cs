@@ -11,8 +11,15 @@ namespace Snake
         public static Player player;
 
         public static int Score = 0;
+        public static int BestScore;
         public static int NumberOfPoints;
         public static int PlayerLenght;
+
+        public static float TimePerTickBacic = 300f;
+        public static float TimePerTick;
+
+        public static StreamWriter Writer;
+        public static StreamReader Reader;
 
         public static bool GameOn = false;
 
@@ -23,37 +30,97 @@ namespace Snake
             if (!GameOn)
             {
                 GenereteWorld(100, 25);
+                TimePerTick = TimePerTickBacic;
 
-                
-                Console.ReadLine();
+                try
+                {
+                    Reader = new StreamReader("score.txt");
+
+                    if (Reader != null)
+                    {
+                        BestScore = int.Parse(Reader.ReadLine());
+                    }
+
+                    Reader.Close();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
             }
 
             while (GameOn) 
             {    
-                Regenerate();
+               if (TimePerTick <= 0)
+               {
+                    ReWrite();
+                    TimePerTick = TimePerTickBacic;
+               }
+               else { TimePerTick -= 0.1f; }
 
-                string answer = Console.ReadLine();
+               if (Console.KeyAvailable)
+               {
+                    var key = Console.ReadKey(true);
+ 
+                    switch (key.Key)
+                    {
+                        case ConsoleKey.W:
+                            Player.PlayerDirection = Direction.Up;
+                            break;
+                        case ConsoleKey.S:
+                            Player.PlayerDirection = Direction.Down; 
+                            break;
+                        case ConsoleKey.A:
+                            Player.PlayerDirection = Direction.Left;
+                            break; 
+                        case ConsoleKey.D:
+                            Player.PlayerDirection = Direction.Right;
+                            break;
+                    }
+               }
 
-                switch (answer.ToLower())
+                if (NumberOfPoints <= 0)
                 {
-                    case "up":
-                        Player.PlayerDirection = Direction.Up;
-                        break;
-                    case "down":
-                        Player.PlayerDirection = Direction.Down;
-                        break;
-                    case "left":
-                        Player.PlayerDirection = Direction.Left;
-                        break;
-                    case "right":
-                        Player.PlayerDirection = Direction.Right;
-                        break;
+                    GameOn = false;
+                }
+            }
+
+            if (Score > BestScore)
+            {
+                try
+                {
+                    Writer = new StreamWriter("score.txt");
+
+                    if (Writer != null)
+                    {
+                        Writer.WriteLine(Score.ToString());
+                    }
+
+                    Writer.Close();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+                finally
+                {
+                   BestScore = Score;
                 }
             }
 
             Console.Clear();
-            Console.WriteLine("\n GAME OVER");
+
+            if (NumberOfPoints <= 0)
+            {
+                Console.WriteLine("\n YOU WIN");
+            }
+            else
+            {
+                Console.WriteLine("\n GAME OVER");
+            }
+            
             Console.WriteLine($"\n SCORE: {Score}");
+            Console.WriteLine($"\n BEST SCORE: {BestScore}");
         }
 
         static void GenereteWorld(int wordWidth,int wordHeight)
@@ -91,12 +158,11 @@ namespace Snake
             Arena[^1] = TopBotBorder;
             #endregion
 
-            SpawnPoits(new Random().Next(15, 25));
+            SpawnPoits(new Random().Next(25, 40));
 
-            Regenerate();//First Generate
+            ReWrite();//First Generate
 
             GameOn = true;
-
         }
 
         static void SpawnPoits(int pointNumber)
@@ -112,14 +178,13 @@ namespace Snake
                 line[randomPosition] = "P";
 
                 Arena[randomLine] = line;
-
                 i++;
             }
 
             NumberOfPoints = pointNumber;
         }
 
-        static void Regenerate()
+        static void ReWrite()
         {
             Console.Clear();
 
@@ -216,17 +281,14 @@ namespace Snake
             Arena[player.Layer] = redrawPlayer;
         }
 
-
         public class Snake
         {
             public int Position { get; set; }
             public int Layer { get; set; }
-
         }
 
         public class Player : Snake
         {
-            
             public int Lenght { get; set; }
             public static Direction PlayerDirection { get; set; }
 
@@ -236,7 +298,6 @@ namespace Snake
                 Layer = layer;
                 Lenght = 1;
                 PlayerLenght = Lenght;
-
             }
 
             public void NewDirection()
@@ -257,18 +318,15 @@ namespace Snake
                         break;
                 }
             }
-
         }
 
         public class Body : Snake
         {
-
             public Body(int layer, int position)
             {
                 Layer = layer;
                 Position = position;
             }
         }
-
     }
 }
