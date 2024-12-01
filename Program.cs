@@ -176,7 +176,6 @@ namespace Snake
 
                 var line = Arena[randomLine];
                 line[randomPosition] = "P";
-
                 Arena[randomLine] = line;
                 i++;
             }
@@ -210,7 +209,15 @@ namespace Snake
             {
                 for (int i = 0; i < Line.Length; i++)
                 {
+                    if(Line[i].ToString() == "P")
+                    {
+                        Console.ForegroundColor = ConsoleColor.Green; 
+                    }else if (Line[i].ToString() == "X" || Line[i].ToString() == "O")
+                    {
+                        Console.ForegroundColor = ConsoleColor.Blue;
+                    }
                     Console.Write(Line[i]);
+                    Console.ForegroundColor = ConsoleColor.White;
                 }
 
                 Console.WriteLine();
